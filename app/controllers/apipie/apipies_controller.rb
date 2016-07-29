@@ -100,7 +100,8 @@ module Apipie
 
       new_doc[:docs][:resources] = @doc[:docs][:resources].select do |k, v|
         if instance_exec(k, nil, v, &Apipie.configuration.authorize)
-          v[:methods] = v[:methods].select do |h|
+          supplier = v || k #value is often nil, using the k seems to work then...
+          supplier[:methods] = supplier[:methods].select do |h|
             instance_exec(k, h[:name], h, &Apipie.configuration.authorize)
           end
           true
