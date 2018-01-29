@@ -13,6 +13,16 @@ module Apipie
         @param_description = param_description
       end
 
+      def inspected_fields
+        [:param_description]
+      end
+
+      def inspect
+        string = "#<#{self.class.name}:#{self.object_id} "
+        fields = inspected_fields.map {|field| "#{field}: #{self.send(field)}"}
+        string << fields.join(", ") << ">"
+      end
+
       def self.inherited(subclass)
         @validators ||= []
         @validators.insert 0, subclass
@@ -67,13 +77,22 @@ module Apipie
       end
 
       def merge_with(other_validator)
-        raise NotImplementedError, "Dont know how to merge #{self.inspect} with #{other_validator.inspect}"
+        return self if self == other_validator
+        raise NotImplementedError, "Don't know how to merge #{self.inspect} with #{other_validator.inspect}"
       end
 
       def params_ordered
         nil
       end
 
+      def ==(other)
+        return false unless self.class == other.class
+        if param_description == other.param_description
+          true
+        else
+          false
+        end
+      end
     end
 
     # validate arguments type
@@ -96,7 +115,7 @@ module Apipie
       end
 
       def description
-        "Must be #{@type}"
+        "Must be a #{@type}"
       end
 
       def expected_type
@@ -146,6 +165,10 @@ module Apipie
 
       def self.build(param_description, argument, options, proc)
         self.new(param_description, argument) if argument.is_a?(Array)
+      end
+
+      def values
+        @array
       end
 
       def description
@@ -413,7 +436,8 @@ module Apipie
       end
 
       def description
-        "Must be 'true' or 'false' or '1' or '0'"
+        string = %w(true false 1 0).map { |value| "<code>#{value}</code>" }.join(', ')
+        "Must be one of: #{string}"
       end
     end
 
@@ -464,4 +488,3 @@ module Apipie
 
   end
 end
-

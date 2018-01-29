@@ -1,4 +1,5 @@
 require 'i18n'
+require 'json'
 require 'active_support/hash_with_indifferent_access'
 
 require "apipie/routing"
@@ -16,6 +17,7 @@ require "apipie/validator"
 require "apipie/railtie"
 require 'apipie/extractor'
 require "apipie/version"
+require "apipie/swagger_generator"
 
 if Rails.version.start_with?("3.0")
   warn 'Warning: apipie-rails is not going to support Rails 3.0 anymore in future versions'

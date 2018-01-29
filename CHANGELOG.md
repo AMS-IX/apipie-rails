@@ -1,6 +1,75 @@
-===========
  Changelog
 ===========
+
+v0.5.6
+------
+
+- Prevent missing translation span in title [\#571](https://github.com/Apipie/apipie-rails/pull/571) ([mbacovsky](https://github.com/mbacovsky))
+- Clean up old generator code for CLI [\#572](https://github.com/Apipie/apipie-rails/pull/572) ([voxik](https://github.com/voxik))
+- Added french locale [\#568](https://github.com/Apipie/apipie-rails/pull/568) ([giglemad](https://github.com/giglemad))
+
+v0.5.5
+------
+
+- prevent lang in url when config.translate is false [\#562](https://github.com/Apipie/apipie-rails/pull/562) ([markmoser](https://github.com/markmoser))
+- Allow for resource-level deprecations [\#567](https://github.com/Apipie/apipie-rails/pull/567) ([cross-p6](https://github.com/cross-p6))
+
+v0.5.4
+------
+
+- Constantize controller class before calling superclass [\#558](https://github.com/Apipie/apipie-rails/pull/558) ([ydkn](https://github.com/ydkn))
+
+v0.5.3
+------
+
+- Fix reloading when extending the apidoc from concern [\#557](https://github.com/Apipie/apipie-rails/pull/557) ([iNecas](https://github.com/iNecas))
+- Fix example recording when using send\_file [\#504](https://github.com/Apipie/apipie-rails/pull/504) ([tdeo](https://github.com/tdeo))
+
+v0.5.2
+------
+
+- A way to extend an exiting API via concern [\#554](https://github.com/Apipie/apipie-rails/pull/554) ([iNecas](https://github.com/iNecas))
+- Fallback to apipie views when application override isn't present [\#552](https://github.com/Apipie/apipie-rails/pull/552) ([tstrachota](https://github.com/tstrachota))
+- Updated setting default locale for api documentation [\#543](https://github.com/Apipie/apipie-rails/pull/543) ([DmitryKK](https://github.com/DmitryKK))
+
+v0.5.1
+------
+
+- Use AD::Reloader on Rails 4, app.reloader only on Rails 5+ [\#541](https://github.com/Apipie/apipie-rails/pull/541) ([domcleal](https://github.com/domcleal))
+- Recognize Rack Symbols as Status Codes [\#468](https://github.com/Apipie/apipie-rails/pull/468)([alex-tan](https://github.com/alex-tan))
+
+v0.5.0
+------
+
+- Fix Rails 5.1 deprecations [\#530](https://github.com/Apipie/apipie-rails/pull/530) ([@Onumis](https://github.com/Onumis) [@sedx](https://github.com/sedx))
+  - **This release is no longer compatible with Ruby 1.9.x**
+- Do not mutate strings passed as config options, fixes \#461 [\#537](https://github.com/Apipie/apipie-rails/pull/537) ([samphilipd](https://github.com/samphilipd))
+- Added recursion for documentation, fixed bug in examples with paperclip [\#531](https://github.com/Apipie/apipie-rails/pull/531) ([blddmnd](https://github.com/blddmnd))
+- Added locales/ja.yml for Japanese [\#529](https://github.com/Apipie/apipie-rails/pull/529) ([kikuchi0808](https://github.com/kikuchi0808))
+
+
+v0.4.0
+------
+
+- Rails 5 compatibility [\#527](https://github.com/Apipie/apipie-rails/pull/527) ([iNecas](https://github.com/iNecas)) [\#420](https://github.com/Apipie/apipie-rails/pull/420) ([buren](https://github.com/buren)) [\#473](https://github.com/Apipie/apipie-rails/pull/473)([domcleal](https://github.com/domcleal))
+  - **This release is no longer compatible with Rails 3.x**
+- Include delete request parmeters in generated documentation [\#524](https://github.com/Apipie/apipie-rails/pull/524) ([johnnaegle](https://github.com/johnnaegle))
+- Allow a blank, not just nil, base\_url. [\#521](https://github.com/Apipie/apipie-rails/pull/521) ([johnnaegle](https://github.com/johnnaegle))
+- Adds allow\_blank option [\#508](https://github.com/Apipie/apipie-rails/pull/508) ([MrLeebo](https://github.com/MrLeebo))
+- Boolean Validator uses \<code\> instead of ' [\#502](https://github.com/Apipie/apipie-rails/pull/502) ([berfarah](https://github.com/berfarah))
+- Fix type validator message [\#501](https://github.com/Apipie/apipie-rails/pull/501) ([cindygu-itglue](https://github.com/cindygu-itglue))
+- Add IT locale [\#496](https://github.com/Apipie/apipie-rails/pull/496) ([alepore](https://github.com/alepore))
+- Fix small typo on dsl\_definition data init [\#494](https://github.com/Apipie/apipie-rails/pull/494) ([begault](https://github.com/begault))
+- Localize app info message [\#491](https://github.com/Apipie/apipie-rails/pull/491) ([belousovAV](https://github.com/belousovAV))
+- Fix travis build [\#489](https://github.com/Apipie/apipie-rails/pull/489) ([mtparet](https://github.com/mtparet))
+- Handle blank data when parsing a example's response [\#453](https://github.com/Apipie/apipie-rails/pull/453) ([stbenjam](https://github.com/stbenjam))
+- Allow layouts to be overridable. Fixes a regression introduced in \#425. [\#447](https://github.com/Apipie/apipie-rails/pull/447) ([nilsojes](https://github.com/nilsojes))
+
+v0.3.7
+------
+
+- Handle blank data when parsing a example's response [\#453](https://github.com/Apipie/apipie-rails/pull/453) ([stbenjam](https://github.com/stbenjam))
+- Allow layouts to be overridable. Fixes a regression introduced in \#425. [\#447](https://github.com/Apipie/apipie-rails/pull/447) ([nilseriksson](https://github.com/nilseriksson))
 
 v0.3.6
 ------

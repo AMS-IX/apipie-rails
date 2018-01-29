@@ -54,14 +54,10 @@ module Apipie
     # the app might be nested when using contraints, namespaces etc.
     # this method does in depth search for the route controller
     def route_app_controller(app, route, visited_apps = [])
-      visited_apps << app
-      if app.respond_to?(:controller)
-        return app.controller(route.defaults)
-      elsif app.respond_to?(:app) && !visited_apps.include?(app.app)
-        return route_app_controller(app.app, route, visited_apps)
+      if route.defaults[:controller]
+        controller_name = (route.defaults[:controller] + 'Controller').camelize
+        controller_name.safe_constantize
       end
-    rescue ActionController::RoutingError
-      # some errors in the routes will not stop us here: just ignoring
     end
 
     def routes_for_action(controller, method, args)
@@ -126,17 +122,17 @@ module Apipie
     # resource_description? It's used to derivate the default value of
     # versions for methods.
     def controller_versions(controller)
-      ret = @controller_versions[controller]
+      ret = @controller_versions[controller.to_s]
       return ret unless ret.empty?
       if controller == ActionController::Base || controller.nil?
         return [Apipie.configuration.default_version]
       else
-        return controller_versions(controller.superclass)
+        return controller_versions(controller.to_s.constantize.superclass)
       end
     end
 
     def set_controller_versions(controller, versions)
-      @controller_versions[controller] = versions
+      @controller_versions[controller.to_s] = versions
     end
 
     def add_param_group(controller, name, &block)
@@ -210,7 +206,7 @@ module Apipie
           return nil
         end
         resource_description = get_resource_description(resource_name)
-        if resource_description && resource_description.controller == resource
+        if resource_description && resource_description.controller.to_s == resource.to_s
           return resource_description
         end
       end
@@ -241,12 +237,13 @@ module Apipie
 
     # initialize variables for gathering dsl data
     def init_env
-      @resource_descriptions = HashWithIndifferentAccess.new { |h, version| h[version] = {} }
-      @controller_to_resource_id = {}
-      @param_groups = {}
+      @resource_descriptions ||= HashWithIndifferentAccess.new { |h, version| h[version] = {} }
+      @controller_to_resource_id ||= {}
+      @param_groups ||= {}
+      @swagger_generator = Apipie::SwaggerGenerator.new(self)
 
       # what versions does the controller belong in (specified by resource_description)?
-      @controller_versions = Hash.new { |h, controller| h[controller] = [] }
+      @controller_versions ||= Hash.new { |h, controller| h[controller.to_s] = [] }
     end
 
     def recorded_examples
@@ -256,6 +253,24 @@ module Apipie
 
     def reload_examples
       @recorded_examples = nil
+    end
+
+    def to_swagger_json(version, resource_name, method_name, lang, clear_warnings=false)
+      return unless valid_search_args?(version, resource_name, method_name)
+
+      # if resource_name is blank, take just resources which have some methods because
+      # we dont want to show eg ApplicationController as resource
+      # otherwise, take only the specified resource
+      _resources = resource_descriptions[version].inject({}) do |result, (k,v)|
+         if resource_name.blank?
+           result[k] = v unless v._methods.blank?
+         else
+           result[k] = v if k == resource_name
+         end
+         result
+       end
+
+      @swagger_generator.generate_from_resources(version,_resources, method_name, lang, clear_warnings)
     end
 
     def to_json(version, resource_name, method_name, lang)
@@ -278,7 +293,7 @@ module Apipie
       {
         :docs => {
           :name => Apipie.configuration.app_name,
-          :info => translate(Apipie.app_info(version), lang),
+          :info => Apipie.app_info(version, lang),
           :copyright => Apipie.configuration.copyright,
           :doc_url => Apipie.full_url(url_args),
           :api_url => Apipie.api_base_url(version),
@@ -390,9 +405,9 @@ module Apipie
     end
 
     def version_prefix(klass)
-      version = controller_versions(klass).first
+      version = controller_versions(klass.to_s).first
       base_url = get_base_url(version)
-      return "/" if base_url.nil?
+      return "/" if base_url.blank?
       base_url[1..-1] + "/"
     end
 
@@ -429,10 +444,10 @@ module Apipie
     # as this would break loading of the controllers.
     def rails_mark_classes_for_reload
       unless Rails.application.config.cache_classes
-        ActionDispatch::Reloader.cleanup!
+        Rails::VERSION::MAJOR == 4 ? ActionDispatch::Reloader.cleanup! : Rails.application.reloader.reload!
         init_env
         reload_examples
-        ActionDispatch::Reloader.prepare!
+        Rails::VERSION::MAJOR == 4 ? ActionDispatch::Reloader.prepare! : Rails.application.reloader.prepare!
       end
     end
 

@@ -8,7 +8,7 @@ module Apipie
   # validator - Validator::BaseValidator subclass
   class ParamDescription
 
-    attr_reader :method_description, :name, :desc, :allow_nil, :validator, :options, :metadata, :show, :as, :validations
+    attr_reader :method_description, :name, :desc, :allow_nil, :allow_blank, :validator, :options, :metadata, :show, :as, :validations
     attr_accessor :parent, :required
 
     def self.from_dsl_data(method_description, args)
@@ -19,6 +19,19 @@ module Apipie
                                    desc_or_options,
                                    options,
                                    &block)
+    end
+
+    def to_s
+      "ParamDescription: #{method_description.id}##{name}"
+    end
+
+    def ==(other)
+      return false unless self.class == other.class
+      if method_description == other.method_description && @options == other.options
+        true
+      else
+        false
+      end
     end
 
     def initialize(method_description, name, validator, desc_or_options = nil, options = {}, &block)
@@ -56,6 +69,7 @@ module Apipie
       end
 
       @allow_nil = @options[:allow_nil] || false
+      @allow_blank = @options[:allow_blank] || false
 
       action_awareness
 
@@ -71,8 +85,20 @@ module Apipie
       method_description.from_concern? || @from_concern
     end
 
+    def normalized_value(value)
+      if value.is_a?(ActionController::Parameters) && !value.is_a?(Hash)
+        value.to_unsafe_hash
+      elsif value.is_a? Array
+        value.map { |v| normalized_value (v) }
+      else
+        value
+      end
+    end
+
     def validate(value)
       return true if @allow_nil && value.nil?
+      return true if @allow_blank && value.blank?
+      value = normalized_value(value)
       if (!@allow_nil && value.nil?) || !@validator.valid?(value)
         error = @validator.error
         error = ParamError.new(error) unless error.is_a? StandardError
@@ -81,6 +107,7 @@ module Apipie
     end
 
     def process_value(value)
+      value = normalized_value(value)
       if @validator.respond_to?(:process_value)
         @validator.process_value(value)
       else
@@ -111,6 +138,7 @@ module Apipie
                :description => preformat_text(Apipie.app.translate(@options[:desc], lang)),
                :required => required,
                :allow_nil => allow_nil,
+               :allow_blank => allow_blank,
                :validator => validator.to_s,
                :expected_type => validator.expected_type,
                :metadata => metadata,
@@ -131,7 +159,7 @@ module Apipie
       self
     end
 
-    # merge param descripsiont. Allows defining hash params on more places
+    # merge param descriptions. Allows defining hash params on more places
     # (e.g. in param_groups). For example:
     #
     #     def_param_group :user do
